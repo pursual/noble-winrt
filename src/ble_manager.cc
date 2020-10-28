@@ -261,7 +261,11 @@ bool BLEManager::DiscoverServices(const std::string& uuid,
     IFDEVICE(device, uuid)
     {
         auto completed = bind2(this, &BLEManager::OnServicesDiscovered, uuid, serviceUUIDs);
-        device.GetGattServicesAsync(BluetoothCacheMode::Uncached).Completed(completed);
+        if (serviceUUIDs.empty() || serviceUUIDs.size() > 1) { 
+            device.GetGattServicesAsync(BluetoothCacheMode::Uncached).Completed(completed);
+        } else if (serviceUUIDs.size() == 1) {
+            device.GetGattServicesForUuidAsync(serviceUUIDs.at(0), BluetoothCacheMode::Uncached).Completed(completed);
+        }
         return true;
     }
 }
